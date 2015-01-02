@@ -18,12 +18,16 @@ if $0 == __FILE__
   db = SQLite3::Database.new( "ares_article.db" )
   db.execute_batch( <<EOF )
 	create table article (
-	  bid integer,
+	  bid integer unique,
 	  title string
 	);
 	create table trigrams (
 	  bid integer,
 	  trigram string
+	);
+	create table inv_trigrams (
+	  trigram string unique,
+	  freq integer
 	);
 EOF
 
@@ -38,6 +42,9 @@ EOF
         db.execute( "insert into trigrams ( bid, trigram ) VALUES ( ?, ? )", 
       		    [ bid, t ] )
       end
+    end
+    db.execute( "select trigram, count(trigram) from trigrams group by trigram" ).each do |t, freq|
+      db.execute( "insert into inv_trigrams ( trigram, freq ) VALUES ( ?, ? )", t, freq )
     end
   end
 end
