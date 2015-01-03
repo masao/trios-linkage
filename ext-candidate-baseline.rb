@@ -18,15 +18,19 @@ if $0 == __FILE__
     if url =~ /\/([^\/]+)\/?$/
       naid = $1
     end
+    title_norm = title.normalize_ja
+    prefix = title_norm[0, 5]
+    postfix = title_norm[-5, 5]
     sql = "select * from article where title like ?"
-    prefix = title[0, 5]
-    params = [ "#{ title[0, 5] }%" ]
-    if title.size > 5
+    params = [ "#{ prefix }%" ]
+    if title_norm.size > 5
       sql << " or title like ?"
-      params << "%#{ title[-5, 5] }"
+      params << "%#{ postfix }"
     end
-    db.execute( "select * from article where title like ? or title like ?", params ).each do |bib_id, ares_title|
+    results = db.execute( "select * from article where title_norm like ? or title_norm like ?", params )
+    results.each do |bib_id, ares_title|
       puts [ naid, bib_id, [ title, ares_title ].join(" :: ") ].join("\t") 
     end
+    STDERR.puts " Skip: "+line if results.size == 0
   end
 end
