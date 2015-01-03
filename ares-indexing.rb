@@ -10,8 +10,9 @@ if $0 == __FILE__
   db = SQLite3::Database.new( "ares_article.db" )
   db.execute_batch( <<EOF )
 	create table article (
-	  bid integer unique,
-	  title string
+          bid integer unique,
+          title string,
+          title_norm string
 	);
 	create table trigrams (
 	  bid integer,
@@ -22,10 +23,11 @@ EOF
   db.transaction do |db|
     ARGF.each do |line|
       bid, title, jtitle, = line.chomp.split( /\t/ )
+      title_norm = title.normalize_ja
 
-      db.execute( "insert into article ( bid, title ) VALUES ( ?, ? )",
-                  [ bid, title ] )
-      trigrams = title.trigrams
+      db.execute( "insert into article ( bid, title, title_norm ) VALUES ( ?, ?, ? )",
+                  [ bid, title, title_norm ] )
+      trigrams = title_norm.trigrams
       p [ bid, title, trigrams ]
       trigrams.each do |t|
         db.execute( "insert into trigrams ( bid, trigram ) VALUES ( ?, ? )",

@@ -5,7 +5,7 @@ require "nkf"
 
 class String
   def normalize_ja
-    NKF.nkf( "-wZ1", self ).gsub( /[\!-\/\[-`:-@「」―\s]/, "" )
+    NKF.nkf( "-wZ1", self ).downcase.gsub( /[\!-\/\[-`:-@「」―\p{P}]/o, "" ).gsub( /\s+/, " " ).strip
   end
 
   def trigrams
