@@ -10,6 +10,7 @@ class String
 
   def trigrams
     results = []
+    results << self[0, 2]
     ( self.size - 1 ).times do |i|
       results << self[i, 3]
     end
