@@ -3,15 +3,7 @@
 require "fileutils"
 require "sqlite3"
 
-class String
-  def trigrams
-    results = []
-    ( self.size - 1 ).times do |i|
-      results << self[i, 3]
-    end
-    results
-  end
-end
+require_relative "util.rb"
 
 if $0 == __FILE__
   FileUtils.rm_f( "ares_article.db" )
@@ -25,26 +17,21 @@ if $0 == __FILE__
 	  bid integer,
 	  trigram string
 	);
-	create table inv_trigrams (
-	  trigram string unique,
-	  freq integer
-	);
 EOF
 
   db.transaction do |db|
     ARGF.each do |line|
       bid, title, jtitle, = line.chomp.split( /\t/ )
-      db.execute( "insert into article ( bid, title ) VALUES ( ?, ? )", 
-      		  [ bid, title ] )
+
+      db.execute( "insert into article ( bid, title ) VALUES ( ?, ? )",
+                  [ bid, title ] )
       trigrams = title.trigrams
       p [ bid, title, trigrams ]
       trigrams.each do |t|
-        db.execute( "insert into trigrams ( bid, trigram ) VALUES ( ?, ? )", 
-      		    [ bid, t ] )
+        db.execute( "insert into trigrams ( bid, trigram ) VALUES ( ?, ? )",
+                    [ bid, t ] )
       end
     end
-    db.execute( "select trigram, count(trigram) from trigrams group by trigram" ).each do |t, freq|
-      db.execute( "insert into inv_trigrams ( trigram, freq ) VALUES ( ?, ? )", t, freq )
-    end
+    db.execute( "create index t on trigrams( trigram )" )
   end
 end

@@ -1,16 +1,11 @@
 #!/usr/bin/env ruby
+# -*- coding: utf-8 -*-
 
 require "nkf"
 require "sqlite3"
 require "levenshtein"
 
-require_relative "ares-indexing.rb"
-
-class String
-  def normalize_ja
-    NKF.nkf( "-wZ1", self ).gsub( /[\!-\/\[-`:-@「」―\s]/, "" )
-  end
-end
+require_relative "util.rb"
 
 def distance( str1, str2 )
   str1 = str1.normalize_ja
@@ -26,7 +21,7 @@ def distance( str1, str2 )
 end
 
 if $0 == __FILE__
-  db = SQLite3::Database.new( "ares_article.db" )
+  db = SQLite3::Database.new( "ares_article.db", readonly: true )
   ARGF.gets # skip headers
   ARGF.each do |line|
     # 著者名  論文名  雑誌名  ISSN    出版者名        出版日付        巻      号      ページ  URL     URL(DOI)

@@ -1,13 +1,14 @@
 #!/usr/bin/env ruby
+# -*- coding: utf-8 -*-
 
 require "nkf"
 require "sqlite3"
 require "levenshtein"
 
-require_relative "ares-indexing.rb"
+require_relative "util.rb"
 
 if $0 == __FILE__
-  db = SQLite3::Database.new( "ares_article.db" )
+  db = SQLite3::Database.new( "ares_article.db", readonly: true )
   naid = nil
   ARGF.gets # skip headers
   ARGF.each do |line|
