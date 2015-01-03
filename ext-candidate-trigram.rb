@@ -29,7 +29,7 @@ if $0 == __FILE__
     #puts line
     naid = $1 if url =~ /\/([^\/]+)\/?$/
     title_norm = title.normalize_ja
-    t_trigrams = title_norm.trigrams
+    t_trigrams = title_norm.trigrams.uniq
     subquery = t_trigrams.map{|e| "trigram = ?" }.join( " or " )
     results = db.execute( "select bid from trigrams where #{ subquery }", *t_trigrams )
     #puts "	searching #{ bids.size } docs..."

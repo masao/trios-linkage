@@ -15,8 +15,9 @@ if $0 == __FILE__
           title_norm string
 	);
 	create table trigrams (
-	  bid integer,
-	  trigram string
+	  bid integer not null,
+	  trigram string not null,
+          primary key( bid, trigram )
 	);
 EOF
 
@@ -27,7 +28,7 @@ EOF
 
       db.execute( "insert into article ( bid, title, title_norm ) VALUES ( ?, ?, ? )",
                   [ bid, title, title_norm ] )
-      trigrams = title_norm.trigrams
+      trigrams = title_norm.trigrams.uniq
       p [ bid, title, trigrams ]
       trigrams.each do |t|
         db.execute( "insert into trigrams ( bid, trigram ) VALUES ( ?, ? )",
