@@ -28,24 +28,26 @@ if $0 == __FILE__
     author, title, jtitle, issn, publisher, date, vol, num, page, url, doi, = line.chomp.split( /\t/ )
     #puts line
     naid = $1 if url =~ /\/([^\/]+)\/?$/
-    t_trigrams = title.trigrams
-    subquery = t_trigrams.map{|e| "trigram = ?" }.join( " or " )
-    trigrams = db.execute( "select * from inv_trigrams where #{ subquery } order by freq", *t_trigrams )
-    #p trigrams
-    t_trigrams = []
-    sum = 0
-    trigrams.each do |trigram, freq|
-      sum += freq
-      break if sum > 1000
-      t_trigrams << trigram
-    end
+    title_norm = title.normalize_ja
+    t_trigrams = title_norm.scan( /.../ )
+    t_trigrams << $' if not $'.empty?
+    #subquery = t_trigrams.map{|e| "trigram = ?" }.join( " or " )
+    #trigrams = db.execute( "select * from inv_trigrams where #{ subquery } order by freq", *t_trigrams )
+    ##p trigrams
+    #t_trigrams = []
+    #sum = 0
+    #trigrams.each do |trigram, freq|
+    #  sum += freq
+    #  break if sum > 1000
+    #  t_trigrams << trigram
+    #end
     subquery = t_trigrams.map{|e| "trigram = ?" }.join( " or " )
     bids = db.execute( "select distinct bid from trigrams where #{ subquery }", *t_trigrams )
-    #puts "	searching #{ bids.size } docs..."
+    #uts "	searching #{ bids.size } docs..."
     bids.each do |bid|
-      bib_id, ares_title, = db.get_first_row( "select * from article where bid = ?", bid )
-      distance = distance( title, ares_title )
-      puts [ naid, bib_id, [ title, ares_title ].join(" :: ") ].join("\t") if distance < 0.3
+      bib_id, ares_title, ares_title_norm, = db.get_first_row( "select * from article where bid = ?", bid )
+      distance = distance( title_norm, ares_title_norm )
+      puts [ naid, bib_id, [ title, ares_title ].join(" :: "), distance ].join("\t") if distance < 0.5
     end
   end
 end
