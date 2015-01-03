@@ -16,8 +16,7 @@ if $0 == __FILE__
 	);
 	create table trigrams (
 	  bid integer not null,
-	  trigram string not null,
-          primary key( bid, trigram )
+	  trigram string not null
 	);
 EOF
 
