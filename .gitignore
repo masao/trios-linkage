@@ -3,3 +3,6 @@
 *.txt
 *.db
 *~
+baseline/
+trigram?/
+distance?/
